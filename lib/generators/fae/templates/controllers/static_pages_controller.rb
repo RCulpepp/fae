@@ -4,7 +4,7 @@ module <%= options.namespace.capitalize %>
     private
 
     def fae_pages
-      [<%= "#{class_name}Page" %>]
+      Fae::StaticPage.active.map { |page| "#{page.title.titleize.delete(" ")}Page".constantize }
     end
   end
 end

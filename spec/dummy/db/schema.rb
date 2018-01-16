@@ -121,8 +121,8 @@ ActiveRecord::Schema.define(version: 20171121212302) do
   create_table "fae_files", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
     t.string   "asset"
-    t.integer  "fileable_id"
     t.string   "fileable_type"
+    t.integer  "fileable_id"
     t.integer  "file_size"
     t.integer  "position",      default: 0
     t.string   "attached_as"
@@ -138,8 +138,8 @@ ActiveRecord::Schema.define(version: 20171121212302) do
   create_table "fae_images", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
     t.string   "asset"
-    t.integer  "imageable_id"
     t.string   "imageable_type"
+    t.integer  "imageable_id"
     t.string   "alt"
     t.string   "caption"
     t.integer  "position",       default: 0
@@ -204,8 +204,8 @@ ActiveRecord::Schema.define(version: 20171121212302) do
   end
 
   create_table "fae_text_fields", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "contentable_id"
     t.string   "contentable_type"
+    t.integer  "contentable_id"
     t.string   "attached_as"
     t.string   "label"
     t.string   "content"
@@ -415,4 +415,5 @@ ActiveRecord::Schema.define(version: 20171121212302) do
     t.text     "food_pairing_ja", limit: 65535
   end
 
+  add_foreign_key "articles", "article_categories"
 end

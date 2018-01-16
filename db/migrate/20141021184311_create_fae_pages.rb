@@ -5,6 +5,7 @@ class CreateFaePages < ActiveRecord::Migration
       t.integer :position, default: 0
       t.boolean :on_stage, default: true
       t.boolean :on_prod, default: false
+      t.boolean :active, default: false
       t.string :slug, index: true
 
       t.timestamps

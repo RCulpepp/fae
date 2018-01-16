@@ -6,6 +6,9 @@ module Fae
 
     validates :title, presence: true
 
+
+    scope :active, -> { where(active: true) }
+    
     @singleton_is_setup = false
 
     def self.instance
