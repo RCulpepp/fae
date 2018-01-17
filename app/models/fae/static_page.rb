@@ -6,7 +6,6 @@ module Fae
 
     validates :title, presence: true
 
-
     scope :active, -> { where(active: true) }
     
     @singleton_is_setup = false
@@ -32,6 +31,10 @@ module Fae
       end.to_h
     end
 
+    def class_name=(class_name)
+      self[:class_name] = "#{class_name.titleize.delete(" ")}Page"
+    end
+    
   private
 
     def self.setup_dynamic_singleton
