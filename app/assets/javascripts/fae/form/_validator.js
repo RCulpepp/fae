@@ -14,7 +14,7 @@ Fae.form.validator = {
 
   init: function () {
     // validate all forms except the login form
-    if ($('form').not('#login_form').length) {
+    if ($('.addedit-form').length < 2 && $('form').not('#login_form').length).length) {
       this.password_confirmation_validation.init();
       this.passwordPresenceConditional();
       this.bindValidationEvents();
