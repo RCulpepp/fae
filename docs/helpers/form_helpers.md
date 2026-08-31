@@ -14,6 +14,7 @@ Form helpers in Fae use the [simple_form](https://github.com/plataformatec/simpl
 * [Fae Grouped Select](#fae-grouped-select)
 * [Fae Datepicker](#fae-datepicker)
 * [Fae Daterangepicker](#fae-daterangepicker)
+* [Fae Colorpicker](#fae-color-picker)
 * [Fae Prefix](#fae-prefix)
 * [Fae Suffix](#fae-suffix)
 * [Fae Video URL](#fae-video-url)
@@ -41,8 +42,7 @@ fae_method_name(f, attribute, options)
 | label | string | attribute.titleize | the form label |
 | helper_text | string | | helper text that appears under label |
 | hint | string | | text that appears in a hint modal |
-| dark_hint | string | | **warning: this option will be depreciated in v2.0** text that appears in a dark color scheme (`hint` will override `dark_hint` if simultaneously supplied) |
-| markdown | boolean | false | adds markdown GUI toolbar |
+| markdown | boolean | false | adds markdown GUI toolbar. field will support inline attachments for images, just drop image onto field to upload. use eye icon to preview image |
 | markdown_supported | boolean | false | displays support text and hint for markdown |
 | input_class | string | | a class to add to the input element |
 | wrapper_class | string | | a class to add to the wrapper element |
@@ -116,12 +116,13 @@ fae_checkbox
 | option | type | default | description |
 | ------ | ---- | ------- | ----------- |
 | type | 'stacked' or 'inline' | stacked | determines how multiple checkboxes are displayed |
+| input_type | :boolean or :check_boxes | :check_boxes | use :boolean for single true/false input
 
 **Examples**
 
-A single attribute checkbox
+A single attribute checkbox to save a boolean
 ```ruby
-fae_checkbox f, :active
+fae_checkbox f, :active, input_type: :boolean
 ```
 
 Inline has_many collection of checkboxes

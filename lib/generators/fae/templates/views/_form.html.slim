@@ -1,7 +1,14 @@
-= simple_form_for(['admin', @item]) do |f|
-  header.content-header.js-content-header
-    == render 'fae/shared/form_header', header: @klass_name
-  == render 'fae/shared/errors'
+ruby:
+	form_options = {
+		html: {
+			data: {
+				form_manager_model: @item.fae_form_manager_model_name,
+				form_manager_info: (@form_manager.present? ? @form_manager.to_json : nil)
+			}
+		}
+	}
+= simple_form_for([:admin, @item], form_options) do |f|
+  == render 'fae/shared/form_header', header: @klass_name
 
   main.content
 <% @form_attrs.each do |attr| -%>
@@ -16,5 +23,9 @@
     = fae_image_form f, :<%= attachment.name -%>
 <% elsif attachment.type == :file -%>
     = fae_file_form f, :<%= attachment.name -%>
+<% elsif attachment.type == :seo_set -%>
+    = fae_seo_set_form f, :<%= attachment.name -%>
+<% elsif attachment.type == :cta -%>
+    = fae_cta_form f, :<%= attachment.name -%>
 <% end -%>
 <% end -%>

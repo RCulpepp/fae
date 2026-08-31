@@ -14,12 +14,16 @@ feature 'fae_nested_index_table' do
       fill_in 'Name', with: 'Fuzzball'
       click_button('Create Cat')
     end
-    expect(page.find('.cats .content table')).to have_content('Fuzzball')
+
+
+    eventually {
+      expect(page.find('.cats .content table')).to have_content('Fuzzball')
+    }
   end
 
   # scenario 'should allow editing existing item', js: true do
     ## TODO: fix flickering spec
-    # cat = FactoryGirl.create(:cat, name: 'Buttercup')
+    # cat = FactoryBot.create(:cat, name: 'Buttercup')
 
     # admin_login
     # visit admin_cats_path
@@ -42,7 +46,7 @@ feature 'fae_nested_index_table' do
   # end
 
   scenario 'should allow deletion of item', js: true do
-    cat = FactoryGirl.create(:cat, name: 'Snowball McPuffypants')
+    cat = FactoryBot.create(:cat, name: 'Snowball McPuffypants')
 
     admin_login
     visit admin_cats_path
@@ -51,7 +55,19 @@ feature 'fae_nested_index_table' do
 
     page.find("tr#cats_#{cat.id} .js-delete-link").click
 
-    expect(page.find('.cats .content table')).to_not have_content('Snowball McPuffypants')
+    eventually {
+      expect(page.find('.cats .content table')).to_not have_content('Snowball McPuffypants')
+    }
+  end
+
+  scenario 'should allow strings and integers in cols', js: true do
+    cat = FactoryBot.create(:cat, name: 'Snowball McPuffypants', description: 'Snowy')
+
+    admin_login
+    visit admin_cats_path
+
+    expect(page.find('.cats .content table')).to have_content('Snowy')
+    expect(page.find('.cats .content table')).to have_content('9')
   end
 
 end

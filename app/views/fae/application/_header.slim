@@ -9,32 +9,45 @@ header.main-header#js-main-header
           li class=nav_active_class(item[:class_name], 0, idx)
             a href=item[:nested_path] = item[:text]
             - if item[:subitems].present?
-              ul
+              ul class=multi_column_nav_ul_class(item[:subitems])
                 - item[:subitems].each_with_index do |subitem, sub_idx|
                   li: a href=subitem[:nested_path] class=nav_active_class(subitem[:class_name], 1, sub_idx, idx) = subitem[:text]
 
   - if user_signed_in?
     ul.utility-nav#js-utility-nav
+      - if current_user.super_admin_or_admin? && netlify_enabled?
+        - if Fae::Site.any?
+          li.utility-dropdown.js-utility-dropdown class=deployments_active_class
+            a href='#' = t('fae.navbar.deployments')
+            ul
+              - Fae::Site.all.each do |site|
+                li
+                  a href=fae.deploy_path(site_id: site.id) = site.name
+        - else
+          li class=deployments_active_class
+            a.deployments-nav-link href=fae.deploy_path = t('fae.navbar.deployments')
       li.utility-dropdown.js-utility-dropdown
         a.grabatar-link href="#"
           img.grabatar src=fae_avatar alt=current_user.full_name
         ul
-          li: a href=fae.destroy_user_session_path Log Out
-          li: a href=fae.settings_path Your Settings
+          li: a href=fae.destroy_user_session_path = t('fae.navbar.logout')
+          li: a href=fae.settings_path = t('fae.navbar.your_settings')
 
       li.utility-dropdown.js-utility-dropdown
         a href="#"
           i.icon-settings
         ul
           - if current_user.super_admin_or_admin?
-            li: a href=fae.users_path Users
-            li: a href=fae.activity_log_path Activity Log
+            li: a href=fae.users_path = t('fae.navbar.users')
+            li: a href=fae.activity_log_path = t('fae.navbar.activity_log')
+          li: a href=fae.alt_texts_path = t('fae.navbar.alt_text_manager')
           - if current_user.super_admin?
-            li: a href=fae.option_path Root Settings
+            li: a href=fae.option_path = t('fae.navbar.root_settings')
+            li: a href=fae.sites_path = t('fae.navbar.sites')
           - if @option.live_url.present?
-            li: a href=@option.live_url target="_blank" Live Site
+            li: a href=@option.live_url target="_blank" = t('fae.application.live_site')
           - if @option.stage_url.present?
-            li: a href=@option.stage_url target="_blank" Stage Site
+            li: a href=@option.stage_url target="_blank" = t('fae.application.stage_site')
 
       li
         a href=fae.help_path
@@ -45,6 +58,6 @@ header.main-header#js-main-header
 
         .utility-search-hit-area#js-utility-search-wrapper
           .utility-search-wrapper
-            input#js-global-search type="text" placeholder="Jump to..."
+            input#js-global-search type="text" placeholder=t('fae.navbar.jump_to')
 
             == render 'global_search_results', show_nav: true

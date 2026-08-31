@@ -7,7 +7,6 @@ module Fae
         item('Products', subitems: [
           item('Wines', class: 'custom-class', path: admin_wines_path),
           item('Releases', path: admin_releases_path),
-          item('Legacy Releases', path: admin_legacy_releases_path),
           item('Attributes', subitems: [
             item('Varietals', path: admin_varietals_path),
             item('Selling Points', path: admin_selling_points_path)
@@ -28,7 +27,8 @@ module Fae
         item('Pages', path: fae.pages_path, subitems: [
           item('Home', path: fae.edit_content_block_path('home')),
           item('Contact Us', path: fae.edit_content_block_path('contact_us')),
-          item('About Us', path: fae.edit_content_block_path('about_us')),
+          item('Global', path: fae.edit_content_block_path('global_content')),
+          item('Privacy', path: fae.edit_content_block_path('privacy')),
           item('About Us', path: fae.edit_content_block_path('about_us')),
           item('About Us', path: fae.edit_content_block_path('about_us')),
           item('About Us', path: fae.edit_content_block_path('about_us')),
@@ -38,7 +38,9 @@ module Fae
           item('About Us', path: fae.edit_content_block_path('about_us')),
           item('About Us', path: fae.edit_content_block_path('about_us')),
           item('About Us', path: fae.edit_content_block_path('about_us'))
-        ])
+        ]),
+        item('Spirits', path: admin_spirits_path),
+        # scaffold inject marker
       ]
     end
 

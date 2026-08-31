@@ -1,20 +1,22 @@
 ruby:
-  require_locals     ['attribute', 'f'], local_assigns
-  has_label            = ![false, ''].include?(local_assigns[:label])
-  label              ||= attribute.to_s.titleize
-  required           ||= f.object.send(attribute).is_required?(f.object.class)
-  helper_text        ||= attempt_common_helper_text(attribute)
-  markdown           ||= false
-  markdown_supported ||= false
-  hint               ||= nil
-  options            ||= {}
-  input_options      ||= {}
+  require_locals      ['attribute', 'f'], local_assigns
+  has_label             = ![false, ''].include?(local_assigns[:label])
+  label               ||= attribute.to_s.titleize
+  required            ||= f.object.send(attribute).is_required?(f.object.class)
+  helper_text         ||= attempt_common_helper_text(attribute)
+  markdown            ||= false
+  markdown_supported  ||= false
+  hint                ||= nil
+  options             ||= {}
+  input_options       ||= {}
+  translate            = translate == false ? false : true
+  show_form_manager   ||= true
 
   if has_label
     label_adjusted = required ? '<abbr title="required">*</abbr> ' : ''
     label_adjusted += label
     if markdown_supported.present? || helper_text.present?
-      label_adjusted += content_tag :h6, class: 'helper_text' do
+      label_adjusted += content_tag :h6, class: 'helper_text helper_text_text' do
         concat(helper_text) if helper_text.present?
         concat(content_tag(:span, 'Markdown Supported', class: 'markdown-support')) if markdown_supported.present?
       end
@@ -27,6 +29,8 @@ ruby:
   options.merge! hint: hint
   options.merge! input_options if (input_options.keys).any?
   options.merge! wrapper_html: {} if input_options[:wrapper_html].blank?
+
+  options.merge! wrapper_html: { data: { form_manager_id:  "#{f.object.class.name}_#{attribute}" } } if show_form_manager
 
   if options[:input_html].present? && options[:input_html][:class].present? && markdown.present?
     options[:input_html][:class] = options[:input_html][:class] + ' js-markdown-editor'
@@ -45,8 +49,13 @@ ruby:
     - options.deep_merge! wrapper_html: { data: { language: lang } }
     - options[:label] = orig_label.gsub(label, "#{label} (#{lang.to_s})").html_safe
 
+    - options.deep_merge! wrapper_html: { data: { form_manager_id: "#{f.object.class.name}_#{attribute}_#{lang}" } } if show_form_manager
+
     = f.simple_fields_for "#{attribute}_#{lang}".to_sym, defaults: { wrapper_html: options[:wrapper_html] } do |i|
       - options[:input_html].merge! data: { validate: i.object.validation_json(f.object.class) }
+      - if(language_translate_enabled? && lang != :en && translate != false)
+        - translate_button = content_tag(:span, 'Translate', class: "button js-translate-button translate-button")
+        - options[:translate] = translate_button.html_safe if translate_button.present?
       = i.input :content, options
 
 - else

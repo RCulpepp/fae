@@ -1,23 +1,29 @@
-= simple_form_for(['admin', @item]) do |f|
-  header.content-header.js-content-header
-    - subnav_array = ['Attributes', 'Assets', 'Associations']
-    - subnav_array.concat ['Aromas', 'Release Notes', 'Recent Changes'] if params[:action] == 'edit'
-    = render 'fae/shared/form_header', header: @klass_name, f: f, item: @item, cloneable: true, subnav: subnav_array, languages: true
-
-  = render 'fae/shared/errors'
+ruby:
+  form_options = {
+    html: {
+      data: {
+        form_manager_model: @item.fae_form_manager_model_name,
+        form_manager_info: (@form_manager.present? ? @form_manager.to_json : nil)
+      }
+    }
+  }
+= simple_form_for([:admin, @item], form_options) do |f|
+  - subnav_array = ['Attributes', 'Assets', 'Associations']
+  - subnav_array.concat ['Aromas', 'Release Notes', 'Recent Changes'] if params[:action] == 'edit'
+  = render 'fae/shared/form_header', header: @klass_name, f: f, item: @item, cloneable: true, subnav: subnav_array, languages: true
 
   section.content#attributes
     = fae_input f, :name,
-      input_class: 'slugger',
-      helper_text: 'text input',
-      hint: '<h4>Normal Hint</h4><p>Yes, HTML is allowed</p>'.html_safe
+      input_class: 'slugger'
 
     = fae_input f, :vintage,
       input_class: 'slugger',
       helper_text: 'text input',
-      dark_hint: '<h4>Dark Hint</h4><p>Yes, HTML is allowed</p>'.html_safe
+      hint: '<h4>Normal Hint</h4><p>Yes, HTML is allowed</p>'.html_safe
 
-    = fae_input f, :slug, helper_text: 'text input (populated from name and vintage)'
+    = fae_input f, :slug, show_form_manager: false, helper_text: 'This field is ignored by the form manager at the developer level'
+
+    = fae_input f, :is_something
 
     = fae_input f, :seo_title
 
@@ -42,7 +48,7 @@
 
     = fae_video_url f, :video_url, helper_text: "video url (default helper: Please enter your YouTube video ID. The video ID is between v= and & of the video's url. This is typically 11 characters long.)"
 
-    = fae_input f, :featured, helper_text: 'checkbox'
+    = fae_checkbox f, :featured, helper_text: 'checkbox'
 
     = fae_radio f, :on_stage, helper_text: 'radio vertical'
 
@@ -58,7 +64,7 @@
 
   section.content#assets
     h2 Assets
-    = fae_image_form f, :bottle_shot, helper_text: 'image form (w/ alt)', required: true
+    = fae_image_form f, :bottle_shot, helper_text: 'image form (w/ alt)'
 
     = fae_image_form f, :hero_image, helper_text: 'image form (w/ alt and caption)', show_caption: true
 
@@ -91,6 +97,13 @@
       parent_item: @item,
       cols: [:title, :body],
       ordered: true,
+      hide_delete_button: true,
       header: 'Release Notes'
+
+  section.content#poly_things
+    = render 'fae/shared/nested_table',
+      assoc: :poly_things,
+      parent_item: @item,
+      cols: [:name]
 
 = render 'fae/shared/recent_changes'

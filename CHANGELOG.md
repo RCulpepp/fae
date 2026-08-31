@@ -1,5 +1,125 @@
 # Fae Changelog
 
+## 3.1
+
+- enhancments
+    + Support multi site deploys
+    + Add a native MFA option [#591](https://github.com/wearefine/fae/pull/591)
+    + Add automatic launguage translation [#599](https://github.com/wearefine/fae/pull/599)
+    + Add AI support for image alt text [#620](https://github.com/wearefine/fae/pull/620)
+    + Add native CTA object [#615](https://github.com/wearefine/fae/pull/615)
+    + Upgrade underscore and momentjs [#609](https://github.com/wearefine/fae/pull/609)
+    + Update documentation [#603](https://github.com/wearefine/fae/pull/603)
+    + Update documentation [#595](https://github.com/wearefine/fae/pull/595)
+- bugs
+    + Fix filter reset issue [#614](https://github.com/wearefine/fae/pull/614)
+    + Page generator hotfix [#596](https://github.com/wearefine/fae/pull/596)
+    + Global search hotfix [#597](https://github.com/wearefine/fae/pull/597)
+
+## 3.0
+
+- enhancments
+    + Add Rails 7 Support
+    + Add SEO Set Module [#592](https://github.com/wearefine/fae/pull/592)
+    + Add support for drag and drop image uploading [#574](https://github.com/wearefine/fae/pull/574)
+    + Upload images through the markdown editor [#261](https://github.com/wearefine/fae/pull/261)
+    + Highlight color is now managed in the user admin (vs CSS) [#572](https://github.com/wearefine/fae/pull/572)
+    + Add saving indication on form submit [#577](https://github.com/wearefine/fae/pull/577)
+    + Update Judge version with validation updates [#573](https://github.com/wearefine/fae/pull/573)
+    + Add support for double nested resources [#589](https://github.com/wearefine/fae/pull/589)
+    + Allow hiding of delete button on nested forms [#576](https://github.com/wearefine/fae/pull/576)
+    + Update dummy app hosting [#590](https://github.com/wearefine/fae/pull/590)
+- bugs
+    + Fix select/deselect bug [#571](https://github.com/wearefine/fae/pull/571)
+    + Fix form manager on nested forms [#580](https://github.com/wearefine/fae/pull/580)
+
+## 2.2
+
+- enhancements
+    + New integration with Netlify to manager and trigger builds - [#560](https://github.com/wearefine/fae/pull/560)
+    + New modal form feature [#487](https://github.com/wearefine/fae/pull/487)
+    + New form manager feature [#504](https://github.com/wearefine/fae/pull/504)
+    + New `fae_redirect_to_form_on_create` option [#486](https://github.com/wearefine/fae/pull/486)
+    + New date select option for filters [#481](https://github.com/wearefine/fae/pull/481)
+    + New `--polymorphic=true` flag on `fae:nested_scaffold` - [#562](https://github.com/wearefine/fae/pull/562)
+    + #512 - Bump Devise to v4.8 [#555](https://github.com/wearefine/fae/pull/555)
+    + Add better support for long subnavs [#547](https://github.com/wearefine/fae/pull/547)
+    + Update toggle element styling [#544](https://github.com/wearefine/fae/pull/544)
+    + Nav and layout styles updates [#542](https://github.com/wearefine/fae/pull/542)
+    + Add docker setup for local development [#554](https://github.com/wearefine/fae/pull/554)
+    + Refactor Fae module [#550](https://github.com/wearefine/fae/pull/550)
+    + Update slugger special characters [#514](https://github.com/wearefine/fae/pull/514)
+    + Add support for adding db indexes via fae:scaffold generator [#503](https://github.com/wearefine/fae/pull/503)
+    + Make add button optional for nested tables [#497](https://github.com/wearefine/fae/pull/497)
+    + Make users active by default [#489](https://github.com/wearefine/fae/pull/489)
+- bugs
+    + Fix deselct bug in multi-select element [#557](https://github.com/wearefine/fae/pull/557)
+    + Fix issue with undefined value being passed into validator function [#549](https://github.com/wearefine/fae/pull/549)
+    + Make no-search dropdowns keyboard focusable [#546](https://github.com/wearefine/fae/pull/546)
+    + `fae_checkbox` form helper fixes [#540](https://github.com/wearefine/fae/pull/540)
+    + Fix flash alert for static page errors [#502](https://github.com/wearefine/fae/pull/502)
+    + Add styled user unlock form [#533](https://github.com/wearefine/fae/pull/533)
+    + Fix activity log pagination bug [#498](https://github.com/wearefine/fae/pull/498)
+    + Vertical privilege escalation, toggle abuse and brute-force protection [#488](https://github.com/wearefine/fae/pull/488)
+- documentation
+    + minor updates, typos and link fixes
+
+## 2.1
+
+- enhancements
+    + Add GraphQL support [#475](https://github.com/wearefine/fae/pull/475)
+    + Add I18n support for the admin interface [#434](https://github.com/wearefine/fae/pull/434)
+    + Update Carrierwave whitelist method naming [#470](https://github.com/wearefine/fae/pull/470)
+    + Make user edit and my settings view more consistent [#473](https://github.com/wearefine/fae/pull/473)
+    + Update Devise to latest version [#465](https://github.com/wearefine/fae/pull/465)
+    + Add Rails versions to dummy migrations [#463](https://github.com/wearefine/fae/pull/463)
+- bugs
+    + Fix user settings cancel path [#476](https://github.com/wearefine/fae/pull/476)
+    + Force adding route via generator if it already exists [#471](https://github.com/wearefine/fae/pull/471)
+    + Init HTML editors when AJAX loads forms [#460](https://github.com/wearefine/fae/pull/460)
+    + Fix bugs in stripValidation() [#426](https://github.com/wearefine/fae/pull/426)
+    + Nested ajax form fixes for file attachment fields [#421](https://github.com/wearefine/fae/pull/421)
+    + Selects need initing for nested forms so we can have select all, etc [#430](https://github.com/wearefine/fae/pull/430)
+    + Fix colour picker when sidenav present [#413](https://github.com/wearefine/fae/pull/413)
+    + Fix nested AJAX form validations [#419](https://github.com/wearefine/fae/pull/419)
+    + Only define StaticPage validations on Fae::TextField and Fae::TextArea [#418](https://github.com/wearefine/fae/pull/418)
+- documentation
+    + Test and document fae_translate on Fae::StaticPage [#472](https://github.com/wearefine/fae/pull/472)
+    + Fix languages selector attribute in shared form headers documentation [#444](https://github.com/wearefine/fae/pull/444)
+    + Fix typos in documentation [#459](https://github.com/wearefine/fae/pull/459)
+    + Update custom image docs [#438](https://github.com/wearefine/fae/pull/438)
+    + Update custom image docs [#420](https://github.com/wearefine/fae/pull/420)
+    + Minor docs fix [#417](https://github.com/wearefine/fae/pull/417)
+    + Clarifying supported Rails versions in README [#412](https://github.com/wearefine/fae/pull/412)
+
+## 2.0
+
+- enhancements
+    + Add Rails 5.1 and 5.2 support
+    + Consolidate `form_header` partial [#342](https://github.com/wearefine/fae/pull/342)
+    + Rename translate to fae_translate to avoid conflicts [#375](https://github.com/wearefine/fae/pull/375)
+    + Add quickstart content to dashboard [#379](https://github.com/wearefine/fae/pull/379)
+    + Update gem dependency versions [#395](https://github.com/wearefine/fae/pull/395)
+    + Add Rails version to migrations [#396](https://github.com/wearefine/fae/pull/396)
+    + Make polymorphic assets optional as required by Rails 5.1+ [#402](https://github.com/wearefine/fae/pull/402)
+    + Small content fixes [#403](https://github.com/wearefine/fae/pull/403)
+- bug fixes
+    + Allow integers to be passed through nested table columns [#405](https://github.com/wearefine/fae/pull/405)
+- deprecations
+    + Deprecate Rails 4 support [#338](https://github.com/wearefine/fae/pull/338)
+    + Deprecate <1.3 markup ([#332](https://github.com/wearefine/fae/pull/332), [#343](https://github.com/wearefine/fae/pull/343))
+    + Deprecate attr_toggle in favor of fae_toggle [#355](https://github.com/wearefine/fae/pull/355)
+
+## 1.7.1
+
+- enhancements
+    + Add Simplified Chinese translations [#359](https://github.com/wearefine/fae/pull/359)
+    + Update carrierwave, rmagick and kaminari dependencies [#380](https://github.com/wearefine/fae/pull/380)
+    + Better documentation for dynamic relationships on static pages [#363](https://github.com/wearefine/fae/pull/363)
+- bug fixes
+    + Prevent duplicate submissions on nested forms [#383](https://github.com/wearefine/fae/pull/383)
+    + `fae_display_field` is supposed to be scoped to the instance not the class [#374](https://github.com/wearefine/fae/pull/374)
+
 ## 1.7
 
 - enhancements

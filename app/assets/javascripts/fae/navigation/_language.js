@@ -69,11 +69,10 @@ Fae.navigation.language = {
       .fadeOut(speed)
       .promise()
       .done(function() {
-        if (lang) {
+        if (lang != 'en') {
           $('div[data-language='+lang+']').fadeIn(speed);
-        } else {
-          _this.el.$lang_divs.fadeIn(speed);
         }
+        $('div[data-language=en]').fadeIn(speed);
       });
   },
 
@@ -83,7 +82,7 @@ Fae.navigation.language = {
    */
   checkForHiddenErrors: function() {
     if (this.el.$select.length && $('div.field_with_errors:hidden').length && !FCH.exists('.hidden_errors')) {
-      $(Fae.content_selector).prepend('<div class="hidden_errors field_with_errors"><span class="error">There are hidden errors. Click "All Languages" in the language nav to view all errors.</span></div>');
+      $('.content').prepend('<div class="hidden_errors field_with_errors"><span class="error">There are hidden errors. Click "All Languages" in the language nav to view all errors.</span></div>');
     }
   }
 };

@@ -3,7 +3,7 @@ require 'spec_helper'
 feature 'fae_pulldown' do
 
   scenario 'should open and select items', js: true do
-    varietal = FactoryGirl.create(:varietal)
+    varietal = FactoryBot.create(:varietal)
 
     admin_login
     visit new_admin_release_path
@@ -15,7 +15,7 @@ feature 'fae_pulldown' do
   end
 
   scenario 'should not display search if pull down has less than 10 items', js: true do
-    FactoryGirl.create_list(:varietal, 9)
+    FactoryBot.create_list(:varietal, 9)
 
     admin_login
     visit new_admin_release_path
@@ -24,7 +24,7 @@ feature 'fae_pulldown' do
   end
 
   scenario 'should display search if pull down has 10 or more items', js: true do
-    FactoryGirl.create_list(:varietal, 10)
+    FactoryBot.create_list(:varietal, 10)
 
     admin_login
     visit new_admin_release_path
@@ -33,9 +33,9 @@ feature 'fae_pulldown' do
   end
 
   scenario 'should order by defined collection' do
-    FactoryGirl.create(:wine, name_en: 'Wine A')
-    FactoryGirl.create(:wine, name_en: 'Wine B')
-    FactoryGirl.create(:wine, name_en: 'Wine C')
+    FactoryBot.create(:wine, name_en: 'Wine A')
+    FactoryBot.create(:wine, name_en: 'Wine B')
+    FactoryBot.create(:wine, name_en: 'Wine C')
 
     admin_login
     visit new_admin_release_path
@@ -44,8 +44,8 @@ feature 'fae_pulldown' do
     expect( wines.last ).to have_content('Wine C')
   end
 
-  scenario 'should not have duplicate "Select One" option' do
-    FactoryGirl.create(:person, name: 'Mike')
+  scenario 'should not have duplicate "None" option' do
+    FactoryBot.create(:person, name: 'Mike')
 
     admin_login
     visit new_admin_location_path
@@ -60,7 +60,7 @@ feature 'fae_pulldown' do
 
   def expect_correct_contact_options
     dropdown_options = all("option")
-    expect(dropdown_options[0].text).to eq 'Select One'
+    expect(dropdown_options[0].text).to eq 'None'
     expect(dropdown_options[1].text).to eq 'Mike'
   end
 end

@@ -7,7 +7,7 @@
 
 Like many Rails CMS engines, Fae delivers all the basics to get you up and running quickly: authentication, authorization, a sleek UI, form helpers, image processing and workflows. But unlike other engines, Fae's generated models, controllers, and views are built to customize and scale.
 
-Fae supports Rails 4.1 to 5.0. We are currently working on Rails 5.1 support.
+Fae 3.x supports Rails 7. For legacy Rails support you can use Fae 2.x on Rails 5.0 to 5.2.
 
 ## Installation
 
@@ -27,7 +27,7 @@ $ rails g fae:install
 
 ## Documentation
 
-For full documentation visit:  
+For full documentation visit:
 https://www.faecms.com/documentation
 
 ### Topics
@@ -53,14 +53,20 @@ https://www.faecms.com/documentation
 * [Filtering, Pagination and Sorting](docs/features/filtering.md)
 * [Authorization](docs/features/authorization.md)
 * [Multi-Language Support](docs/features/multi_language.md)
+* [Language Translation](docs/features/language_translate.md)
 * [Cloning](docs/features/cloning.md)
 * [Change Tracker](docs/features/change_tracker.md)
 * [Slugger](docs/features/slugger.md)
 * [Disabling Environments](docs/features/disable_envs.md)
+* [Form Field Label & Helper Text Manager](docs/features/form_manager.md)
+* [Netlify Deploy Monitor](docs/features/netlify.md)
+* [Multi-Factor Authentication via OTP](docs/features/mutli_factor_authentication.md)
 
 
 ### Tutorials
 
+* [Setting Up SEO with Fae](docs/tutorials/seo.md)
+* [Setting Up GraphQL with Fae](docs/tutorials/graphql_support.md)
 * [Setting Up Images and Files](docs/tutorials/image_and_files.md)
 * [Adding Dynamic Relationships to Pages](docs/tutorials/dynamic_relationships_to_pages.md)
 * [Adding Conditional Validations](docs/tutorials/conditional_validations.md)
@@ -84,6 +90,7 @@ https://www.faecms.com/documentation
 
 * [Running Fae Locally](docs/contributing/local_setup.md)
 * [Fae Standards](docs/contributing/standards.md)
+* [Share Your Creation](docs/contributing/share_your_creation.md)
 
 ## [Upgrading](docs/upgrading/index.md)
 

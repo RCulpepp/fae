@@ -32,7 +32,8 @@
   'globals/navigation/sidenav',
   'globals/navigation/mobilenav',
   'globals/navigation/utility',
-  'globals/navigation/search'
+  'globals/navigation/search',
+  'globals/navigation/multi-col-subnav'
 ;
 
 // Tables
@@ -45,15 +46,18 @@
   'modules/tables/sticky',
   'modules/tables/tooltips',
   'modules/tables/pagination',
-  'modules/tables/image'
+  'modules/tables/image',
+  'modules/tables/alt_text_manager'
 ;
 
 // Modules
 @import
   'modules/buttons',
   'modules/modal',
+  'modules/deploy',
   'modules/toggles',
-  'modules/alerts'
+  'modules/alerts',
+  'modules/errors-bar'
 ;
 
 // Forms
@@ -70,17 +74,15 @@
   'modules/forms/colorpicker',
   'modules/forms/hints',
   'modules/forms/validation',
-  'modules/forms/simple-mde'
+  'modules/forms/simple-mde',
+  'modules/forms/form-manager'
 ;
 
 // Pages
 @import
   'pages/error',
   'pages/login',
-  'pages/help'
-;
-
-// Legacy styles
-@import
-  'globals/legacy/pre-1.3'
+  'pages/help',
+  'pages/home',
+  'pages/mfa'
 ;

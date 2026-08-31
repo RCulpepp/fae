@@ -53,6 +53,7 @@ Displays breadcrumb links and form title.
 | cloneable | boolean | false | includes Clone button |
 | clone_button_text | string | 'Clone' | clone button text |
 | subnav | Array<String> | [] | generates "jump to" anchor links for long forms |
+| show_flash_messages | boolean | true | display flash messages rendered by form
 
 ### With subnav
 
@@ -77,30 +78,11 @@ To separate name and ID selector, pass an Array instead of a String.
 - subnav_array = ['SEO', 'Attributes', ['Images', 'images_table']]
 ```
 
-## Form Buttons
-
-```ruby
-form_buttons
-```
-**Warning**: This partial will be depreceated in v2.0. Use [`fae/shared/form_header`](#form_header-1) instead.
-
-Displays form's save and cancel buttons.
-
-| option | type | default | description |
-| ------ | ---- | ------- | ----------- |
-| save_button_text   | string | 'Save' | save button text  |
-| cancel_button_text | string | 'Cancel' | cancel button text  |
-
 **Examples**
 
 Standard implementation
 ```ruby
-render 'fae/shared/form_buttons'
-```
-
-With custom text
-```ruby
-render 'fae/shared/form_buttons', save_button_text: 'Yes!', cancel_button_text: 'Nope :('
+render 'fae/shared/form_header', header: @item, subnav: ['SEO', 'Image Gallery', 'Recent Changes']
 ```
 
 ## Nested Table
@@ -115,12 +97,14 @@ The nested_table should go after the main form ends and should only be placed on
 
 | option | type | default | description |
 |--------|------|---------|-------------|
-| index | false | boolean | used for nested index forms |
+| index | boolean | false | used for nested index forms |
 | assoc   | symbol | | **(required)** the association's name, or the item's name if it's for the index  |
 | parent_item | ActiveRecord object | | **(required)** the item that the new objects will be associated to  |
 | cols* | array of symbols, or array of symbols and hashes | [], [{}] | an array of attributes to display on the list view, associations will display the `fae_display_field` or a thumbnail if it's a `Fae::Image` |
 | title | string | assoc.to_s.titleize | the H3 directly above the form |
 | add_button_text | string | "Add #{title.singularize}" | the add button's text |
+| hide_add_button | boolean | false | Disables the Add button in the table header and the "add some" link in the table body |
+| hide_delete_button | boolean | false | Disables the ability to delete and removes trashcan icon |
 | ordered | boolean | false | allows list view to be sortable, which is saved to a `position` attribute |
 | has_thumb | boolean | false | displays a thumbnail in the list view (only applicable to `Fae::Image`)
 | edit_column | boolean | false | displays edit link
@@ -196,6 +180,20 @@ Update the elements you wish to appear in the nested form.
 
 Add the [nested table partial](helpers.md#nested_table) to the parent form. This partial should be below the actual form as you cannot nest form tags. This form should only appear on the edit page as you cannot associate content to an object that doesn't exist yet.
 
+## Double-nested Resources
+
+Have you ever wanted to place a nested resource in an already nested resource? Now you can. You will set this up just like the previous examples, but you'll be placing the nested table partial into a nested form, here's an example:
+
+```slim
+- if params[:action] == 'edit'
+  #sub_aromas.nested-form
+    == render 'fae/shared/nested_table',
+      assoc: :sub_aromas,
+      parent_item: @item,
+      cols: [:name]
+```
+
+You can reference the `SubAroma` setup in the dummy app for a fully working example of this.
 ## Recent Changes
 
 ```slim

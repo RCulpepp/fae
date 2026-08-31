@@ -1,16 +1,31 @@
 = simple_form_for(@option) do |f|
   header.content-header.js-content-header
     h1 Root Settings
-    .main_content-header-save
-      a.button#js-header-cancel href=fae.root_path(cancelled: true) Cancel
-      = f.submit 'Save'
+    .content-header-buttons
+      a.button#js-header-cancel href=fae.root_path(cancelled: true) = t('fae.form.cancel')
+      input name="commit" type="submit" value=t('fae.form.save')
 
   == render 'flash_messages'
 
-  section.content
-    = fae_input f, :title, label: 'Project Name'
+  main.content
+    = fae_input f, :title, label: t('fae.options.project.name')
     = fae_input f, :time_zone, wrapper_class: 'select'
-    = fae_input f, :live_url, label: 'Live URL', helper_text: 'Include http:// for external links.'
-    = fae_input f, :stage_url, label: 'Stage URL', helper_text: 'Include http:// for external links.'
-    = fae_image_form f, :logo, helper_text: 'Used on login page, 300x300px .jpg'
+    = fae_input f, :colorway, label: t('fae.options.colorway'), helper_text: t('fae.options.colorway_helper')
+    = fae_input f, :live_url, label: t('fae.options.live_url'), helper_text: t('fae.options.url_helper')
+    = fae_input f, :stage_url, label: t('fae.options.stage_url'), helper_text: t('fae.options.url_helper')
+    = fae_image_form f, :logo, helper_text: t('fae.options.logo_helper')
     = fae_image_form f, :favicon
+
+    - if Fae.languages.keys.any? && ENV['TRANSLATOR_TEXT_SUBSCRIPTION_KEY'].present?
+      = fae_input f, :translate_language, label: t('fae.options.translate_language')
+
+    - if ENV['PRIMARY_KEY'].present? && ENV['DETERMINISTIC_KEY'].present? && ENV['KEY_DERIVATION_SALT'].present?
+      section.content#multi_factor_authentication
+        h2 MULTI-FACTOR AUTHENTICATION
+        p This setting enables multi-factor authentication (MFA) globally. Please do not change this unless you know what you are doing!
+        p Enabling MFA will require finalizing setup immediately after saving. To do so you will need a multi-factor authentication app that accepts a link or QR code to connect. The app will then provide you a one time code to use with your email and password.
+        p Disabling MFA here will disable it for all users immediately. If you enable MFA after disabling you will be required to set it up again.
+        = fae_input f, :site_mfa_enabled, label: t('fae.options.mfa_enabled')
+
+section.content#deploy_hooks
+  == render "fae/deploy_hooks/table"

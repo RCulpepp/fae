@@ -2,6 +2,12 @@ require 'rails_helper'
 
 describe 'pages#home' do
 
+  before(:each) do
+    def fae_path
+      Rails.application.routes.url_helpers.fae_path
+    end
+  end
+
   context 'when user is logged out' do
     it 'should redirect to the login page' do
       create_super_user
@@ -22,8 +28,8 @@ describe 'pages#home' do
 
     it 'should list all recently updated objects, ordered by most recent first' do
       a_bit_ago = 5.seconds.ago
-      wine = FactoryGirl.create(:wine, updated_at: a_bit_ago, created_at: a_bit_ago)
-      cat = FactoryGirl.create(:cat)
+      wine = FactoryBot.create(:wine, updated_at: a_bit_ago, created_at: a_bit_ago)
+      cat = FactoryBot.create(:cat)
 
       super_admin_login
       get fae_path
@@ -32,8 +38,8 @@ describe 'pages#home' do
     end
 
     it 'should exlude Fae models from dashboard list' do
-      fae_role = FactoryGirl.create(:fae_role)
-      wine = FactoryGirl.create(:wine)
+      fae_role = FactoryBot.create(:fae_role)
+      wine = FactoryBot.create(:wine)
 
       super_admin_login
       get fae_path
@@ -43,7 +49,7 @@ describe 'pages#home' do
     end
 
     it 'should exlude Fae.dashoard_exclusions from dashboard list' do
-      aroma = FactoryGirl.create(:aroma)
+      aroma = FactoryBot.create(:aroma)
 
       super_admin_login
       get fae_path

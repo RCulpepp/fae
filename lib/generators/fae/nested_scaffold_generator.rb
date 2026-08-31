@@ -6,9 +6,11 @@ module Fae
 
     def go
       generate_nested_model_file
+      generate_graphql_type
       generate_nested_controller_file
       generate_view_files
       add_route
+      inject_livable
     end
 
     private
@@ -16,14 +18,16 @@ module Fae
       def generate_nested_model_file
         generate "model #{file_name} #{@@attributes_flat}"
         inject_concern
-        inject_position_scope
-        inject_model_attachments
         inject_display_field_to_model
+        inject_model_attachments
+        inject_position_scope
         inject_parent_info if options.parent_model.present?
+        inject_polymorphic_info if options.polymorphic
       end
 
       def generate_nested_controller_file
         @attachments = @@attachments
+        @polymorphic_name = polymorphic_name
         template "controllers/nested_scaffold_controller.rb", "app/controllers/#{options.namespace}/#{file_name.pluralize}_controller.rb"
       end
 
@@ -38,11 +42,30 @@ module Fae
 
       def inject_parent_info
         inject_into_file "app/models/#{file_name}.rb", after: "BaseModelConcern\n" do <<-RUBY
-\n  belongs_to :#{options.parent_model.underscore}, touch: true
+        \n  belongs_to :#{options.parent_model.underscore}, touch: true
+          def fae_nested_parent
+            :#{options.parent_model.underscore}
+          end
+        RUBY
+        end
+      end
+
+      def inject_polymorphic_info
+        inject_into_file "app/models/#{file_name}.rb", after: "BaseModelConcern\n" do <<-RUBY
+          def fae_nested_parent
+            :#{polymorphic_name}
+          end
+        RUBY
+        end
+      end
+
+      def inject_polymorphic_info
+        inject_into_file "app/models/#{file_name}.rb", after: "BaseModelConcern\n" do <<-RUBY
 
   def fae_nested_parent
-    :#{options.parent_model.underscore}
+    :#{polymorphic_name}
   end
+
 RUBY
         end
       end

@@ -4,13 +4,18 @@ module Fae
     argument :attributes, type: :array, default: [], banner: "field[:type][:index] field[:type][:index]"
     class_option :namespace, type: :string, default: 'admin', desc: 'Sets the namespace of the generator'
     class_option :template, type: :string, default: 'slim', desc: 'Sets the template engine of the generator'
+    class_option :polymorphic, type: :boolean, default: false, desc: 'Makes the model and scaffolding polymorphic. parent-model is ignored if passed.'
+
+    Rails::Generators::GeneratedAttribute::DEFAULT_TYPES += ['image', 'file', 'seo_set', 'cta']
 
     @@attributes_flat = []
     @@attribute_names = []
     @@association_names = []
     @@attachments = []
+    @@graphql_attributes = []
     @@has_position = false
     @@display_field = ''
+    @@needs_livable = false
 
     def check_template_support
       supported_templates = ['slim']
@@ -20,26 +25,33 @@ module Fae
     def set_globals
       if attributes.present?
         attributes.each do |arg|
-          # :image and :file args get used to generate association defs and form elements
-          # we don't want them in attributes_flat or attribute_names as they are not real model generator field options
+          # prevent these from being in attributes_flat or attribute_names as they are not real model generator field options
           if is_attachment(arg)
             @@attachments << arg
           else
-            @@attributes_flat << "#{arg.name}:#{arg.type}"
+            @@attributes_flat << "#{arg.name}:#{arg.type}" + (arg.has_index? ? ":index" : "")
           end
 
-          if arg.name['_id'] || arg.type.to_s == 'references'
-            @@association_names << arg.name.gsub('_id', '')
+          if options.polymorphic
+            @@attributes_flat << "#{polymorphic_name}:references{polymorphic}"
+          end
+
+          if is_association(arg)
+            @@association_names << arg.name.gsub(/_id$/, '')
           elsif !is_attachment(arg)
             @@attribute_names << arg.name
           end
           @@has_position = true if arg.name === 'position'
+          @@needs_livable = true if arg.name == 'on_prod'
+
+          @@graphql_attributes << graphql_object(arg)
         end
 
         @@attributes_flat = @@attributes_flat.uniq.join(' ')
         @@association_names.uniq!
         @@attribute_names.uniq!
         @@attachments.uniq!
+        @@graphql_attributes.uniq!
       end
     end
 
@@ -50,8 +62,9 @@ module Fae
     def generate_model
       generate "model #{file_name} #{@@attributes_flat}"
       inject_concern
-      inject_position_scope
+      inject_display_field_to_model
       inject_model_attachments
+      inject_position_scope
     end
 
     def generate_controller_file
@@ -66,6 +79,7 @@ module Fae
       @attachments = @@attachments
       @has_position = @@has_position
       @display_field = @@display_field
+      @polymorphic_name = polymorphic_name
       template "views/index.html.#{options.template}", "app/views/#{options.namespace}/#{plural_file_name}/index.html.#{options.template}"
       template "views/_form.html.#{options.template}", "app/views/#{options.namespace}/#{plural_file_name}/_form.html.#{options.template}"
       copy_file "views/new.html.#{options.template}", "app/views/#{options.namespace}/#{plural_file_name}/new.html.#{options.template}"
@@ -73,7 +87,7 @@ module Fae
     end
 
     def add_route
-      inject_into_file "config/routes.rb", after: "namespace :#{options.namespace} do\n" do <<-RUBY
+      inject_into_file "config/routes.rb", after: "namespace :#{options.namespace} do\n", force: true do <<-RUBY
     resources :#{plural_file_name}
 RUBY
       end
@@ -105,9 +119,9 @@ RUBY
       end
 
       inject_into_file "app/models/#{file_name}.rb", after: "include Fae::BaseModelConcern\n" do <<-RUBY
-\n  def fae_display_field
+  def fae_display_field
     #{@@display_field}
-  end\n
+  end
 RUBY
       end
 
@@ -117,7 +131,7 @@ RUBY
       if @@has_position
         inject_into_file "app/models/#{file_name}.rb", after: "include Fae::BaseModelConcern\n" do <<-RUBY
 \n  acts_as_list add_new_at: :top
-  default_scope { order(:position) }
+  default_scope { order(:position) }\n
 RUBY
         end
       end
@@ -132,6 +146,18 @@ RUBY
   has_fae_image :#{attachment.name}\n
 RUBY
           end
+        elsif attachment.type == :seo_set
+            inject_into_file "app/models/#{file_name}.rb", after: "include Fae::BaseModelConcern\n" do
+              <<-RUBY
+    has_fae_seo_set :#{attachment.name}\n
+  RUBY
+            end
+          elsif attachment.type == :cta
+            inject_into_file "app/models/#{file_name}.rb", after: "include Fae::BaseModelConcern\n" do
+              <<-RUBY
+    has_fae_cta :#{attachment.name}\n
+  RUBY
+            end
         elsif attachment.type == :file
           inject_into_file "app/models/#{file_name}.rb", after: "include Fae::BaseModelConcern\n" do
             <<-RUBY
@@ -147,8 +173,92 @@ RUBY
       inject_into_file 'app/models/concerns/fae/navigation_concern.rb', line, before: '# scaffold inject marker'
     end
 
+    def graphql_object(arg)
+      if is_association(arg)
+        assoc_name = arg.name.gsub(/_id$/, '')
+        assoc_type = "Types::#{assoc_name.classify}Type"
+        { attr: assoc_name.to_sym, type: assoc_type }
+      else
+        { attr: arg.name.to_sym, type: graphql_type(arg.type) }
+      end
+    end
+
+    def graphql_type(type)
+      case type.to_s
+      when 'integer'
+        'Integer'
+      when 'boolean'
+        'Boolean'
+      when 'image'
+        'Types::FaeImageType'
+      when 'file'
+        'Types::FaeFileType'
+      when 'seo_set'
+        'Types::FaeSeoSetType'
+      when 'cta'
+        'Types::FaeCtaType'
+      else
+        'String'
+      end
+    end
+
+    def generate_graphql_type
+      return unless uses_graphql
+      @graphql_attributes = @@graphql_attributes
+      template "graphql/graphql_type.rb", "app/graphql/types/#{file_name}_type.rb"
+    end
+
+    def uses_graphql
+      defined?(GraphQL)
+    end
+
+    def is_association(arg)
+      arg.name.end_with?('_id') || arg.type.to_s == 'references'
+    end
+
     def is_attachment(arg)
-      [:image,:file].include?(arg.type)
+      [:image, :file, :seo_set, :cta].include?(arg.type)
+    end
+
+    def polymorphic_name
+      "#{file_name.underscore}able"
+    end
+
+    def polymorphic_name
+      "#{file_name.underscore}able"
+    end
+
+    ####################################################################
+    # FINE specific methods
+    ####################################################################
+
+    def inject_static_page_gql_query
+      # return unless uses_graphql
+      inject_into_file 'app/graphql/types/query_type.rb', after: "class QueryType < Types::BaseObject\n" do
+        <<-RUBY
+
+    field :#{file_name}_page, Types::#{file_name.titleize.gsub(' ','')}PageType, null: true do
+      description "Returns the #{file_name.titleize.gsub(' ','')} Page instance"
+    end
+
+    def #{file_name}_page
+      #{file_name.titleize.gsub(' ','')}Page.instance
+    end
+RUBY
+      end
+    end
+
+    # This assumes your app has the Livable concern in it.
+    # Which if you've started from our BE template, it should.
+    def inject_livable
+      if @@needs_livable
+        inject_into_file "app/models/#{file_name}.rb", after: "include Fae::BaseModelConcern" do <<-RUBY
+
+  include Livable\n
+RUBY
+        end
+
+      end
     end
 
   end

@@ -1,5 +1,4 @@
 require_relative 'base_generator'
-
 module Fae
   class PageGenerator < Fae::BaseGenerator
     desc 'Creates model with dependancies for Fae Static Pages'
@@ -11,6 +10,7 @@ module Fae
       if attributes.present?
         attributes.each do |attr|
           @@attributes[attr.name.to_sym] = convert_attr_type(attr.type)
+          @@graphql_attributes << graphql_object(attr)
         end
       end
     end
@@ -18,14 +18,16 @@ module Fae
     def go
       generate_static_page_controller
       generate_static_page_model
+      generate_graphql_type
       generate_static_page_view
+      inject_static_page_gql_query
     end
 
     private
 
     def generate_static_page_controller
       file = "app/controllers/#{options.namespace}/content_blocks_controller.rb"
-      if ::File.exists?(Rails.root.join(file).to_s)
+      if ::File.exist?(Rails.root.join(file).to_s)
         inject_into_file "app/controllers/#{options.namespace}/content_blocks_controller.rb", ", #{class_name}Page", before: ']'
       else
         template 'controllers/static_pages_controller.rb', file
@@ -35,6 +37,12 @@ module Fae
     def generate_static_page_model
       @attributes = @@attributes
       template "models/pages_model.rb", "app/models/#{file_name}_page.rb"
+    end
+
+    def generate_graphql_type
+      return unless uses_graphql
+      @graphql_attributes = @@graphql_attributes
+      template "graphql/graphql_page_type.rb", "app/graphql/types/#{file_name}_page_type.rb"
     end
 
     def generate_static_page_view
@@ -57,6 +65,8 @@ module Fae
         connect_object "Fae::Image"
       when "file"
         connect_object "Fae::File"
+      when "cta"
+        connect_object "Fae::Cta"
       else
         type
       end

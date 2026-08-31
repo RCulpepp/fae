@@ -10,6 +10,7 @@ Fae.form.ajax = {
   init: function() {
     this.$addedit_form = $('.js-addedit-form, .js-index-addedit-form');
     this.$filter_form = $('.js-filter-form');
+    this.$nested_form = $('.nested-form');
 
     this.addEditLinks();
     this.addEditSubmission();
@@ -66,6 +67,11 @@ Fae.form.ajax = {
         $wrapper.find('.input.file').fileinputer();
       }
 
+      this.$nested_form = $('.nested-form');
+
+      // Bind validation to nested form fields added by AJAX
+      Fae.form.validator.bindValidationEvents(this.$nested_form);
+
       // Reinitialize form elements
       Fae.form.dates.initDatepicker();
       Fae.form.dates.initDateRangePicker();
@@ -73,7 +79,18 @@ Fae.form.ajax = {
       Fae.form.slugger.addListener();
       Fae.form.validator.length_counter.init();
       Fae.form.text.initMarkdown();
+      Fae.form.text.initHTML();
       Fae.form.checkbox.setCheckboxAsActive();
+      Fae.form.select.init();
+      Fae.form.formManager.setupAllFields($wrapper.find('form'));
+      Fae.form.dragDrop.init();
+      Fae.tables.rowSorting();
+      Fae.form.text.initTranslation();
+      Fae.altTextManager.ready();
+      Fae.form.text.initGenerateAlt();
+
+      // validate nested form fields on submit
+      Fae.form.validator.formValidate(this.$nested_form);
 
       $wrapper.find('.hint').hinter();
     });
@@ -107,6 +124,11 @@ Fae.form.ajax = {
 
       var $target = $(evt.target);
 
+      // We need to target the form wrapper containing the target form to enable nesting
+      // multiple forms.
+      // Relying on $this will end up redrawing the top-most parent form with the returned table
+      var $theFormWrapper = $target.closest('.js-addedit-form');
+
       // ignore calls not returning html
       if (data !== ' ' && $(data)[0]) {
         var $this = $(this);
@@ -122,16 +144,13 @@ Fae.form.ajax = {
         if ($html) {
           if($html.hasClass('js-addedit-form') || $html.hasClass( 'js-index-addedit-form' )) {
             // we're returning the table, replace everything
-            _this._addEditReplaceAndReinit($this, $html.html(), $target);
-          } else if ($html.hasClass('nested-form') || $html.hasClass('form_content-wrapper')) {
-
-            // @depreciation - remove `|| $html.hasClass('form_content_wrapper')` from above conditional as well as the following ternary (value should just be '.nested-form') in v2.0
-            var form_wrapper_selector = $html.hasClass('nested-form') ? '.nested-form' : '.form_content-wrapper';
+            _this._addEditReplaceAndReinit($theFormWrapper, $html.html(), $target);
+          } else if ($html.hasClass('nested-form')) {
 
             // we're returning the form due to an error, just replace the form
-            $this.find( form_wrapper_selector ).replaceWith(data);
-            $this.find('.select select').fae_chosen();
-            $this.find('.input.file').fileinputer();
+            $theFormWrapper.find('.nested-form' ).replaceWith($html);
+            $theFormWrapper.find('.select select').fae_chosen();
+            $theFormWrapper.find('.input.file').fileinputer();
 
             Fae.form.dates.initDatepicker();
             Fae.form.dates.initDateRangePicker();
@@ -139,6 +158,7 @@ Fae.form.ajax = {
             Fae.form.validator.length_counter.init();
             Fae.form.checkbox.setCheckboxAsActive();
             Fae.form.text.initMarkdown();
+            Fae.form.text.initHTML();
 
             FCH.smoothScroll($this.find('.js-addedit-form-wrapper'), 500, 100, 120);
           }
@@ -156,6 +176,7 @@ Fae.form.ajax = {
 
         $parent.fadeOut(function(){
           $parent.next('.asset-inputs').fadeIn();
+          $parent.remove();
         });
       }
 
@@ -264,6 +285,7 @@ Fae.form.ajax = {
 
         $parent.fadeOut(function(){
           $parent.next('.asset-inputs').fadeIn();
+          $parent.remove();
         });
       }
     });
@@ -286,11 +308,21 @@ Fae.form.ajax = {
   },
 
   /**
-   * Attaching click handlers to #main_content to allow ajax replacement
+   * Attaching click handlers to #js-main-content to allow ajax replacement
    * @todo Clean this up, moving listeners into their respective component classes (select, checkbox, etc.)
    */
   htmlListeners: function() {
-    $('#js-main-content, .login-form > form')
+    $('#js-main-content, .login-form > form, #simplemodal-data')
+
+      /**
+       * For the delete button on file input
+       */
+      .on('click', '.js-file-clear', function(e) {
+        e.preventDefault();
+        var $parent = $(this).parent();
+        $parent.next().show();
+        $parent.hide();
+      })
 
       /**
        * For the yes/no slider

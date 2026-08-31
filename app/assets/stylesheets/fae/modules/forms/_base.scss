@@ -14,12 +14,14 @@ input[type=email] {
   max-width: 100%;
 
   &:focus {
-    border-color: $c-notice-content;
+    border-color: $c-focus-border;
   }
 }
 
 .input {
   margin-bottom: 20px;
+  display: block;
+  position: relative;
 
   &.disabled {
     opacity: 0.5;
@@ -38,6 +40,11 @@ input[type=email] {
     width: 100%;
     margin-top: 10px;
     margin-bottom: 10px;
+  }
+
+  .addedit-form-thumb {
+    max-width: 150px;
+    max-height: 100px;
   }
 }
 
@@ -97,4 +104,35 @@ input[type=email] {
     margin-top: 13px;
     margin-bottom: 10px;
   }
+}
+
+.input.field {
+
+  &.highlight {
+    outline: 2px dashed green;
+    outline-offset: 1px;
+  }
+}
+
+.translate-button {
+  position: absolute;
+  margin-left: 10px;
+}
+
+.translate-markdown-button {
+  top: 10px;
+  position: absolute;
+  margin-left: 10px;
+  right: 0;
+  transform: translateX(calc(100% + 10px));
+}
+
+.generate-alt-button {
+  position: absolute;
+  margin-left: 10px;
+  width: 105px;
+}
+
+.hide { 
+  display: none !important 
 }

@@ -1,15 +1,15 @@
-require_relative 'base_generator'
 module Fae
   class NestedIndexScaffoldGenerator < Fae::BaseGenerator
     source_root ::File.expand_path('../templates', __FILE__)
 
     def go
       generate_model
+      generate_graphql_type
       generate_nested_index_controller_file
-      inject_display_field_to_model
       generate_view_files
       add_route
       inject_nav_item
+      inject_livable
     end
 
 

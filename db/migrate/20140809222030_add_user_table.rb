@@ -1,4 +1,4 @@
-class AddUserTable < ActiveRecord::Migration
+class AddUserTable < ActiveRecord::Migration[4.2]
   def change
     create_table(:fae_users) do |t|
       ## Database authenticatable
@@ -34,7 +34,7 @@ class AddUserTable < ActiveRecord::Migration
       t.string  :first_name
       t.string  :last_name
       t.integer :role_id
-      t.boolean :active
+      t.boolean :active, :default => true, :null => false
       t.string :language
 
       t.timestamps

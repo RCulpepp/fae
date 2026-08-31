@@ -2,11 +2,8 @@
 module Fae
   class FileUploader < CarrierWave::Uploader::Base
 
-    # Include RMagick support:
-    # include CarrierWave::RMagick
-    include CarrierWave::MimeTypes
+    include CarrierWave::MiniMagick
 
-    process :set_content_type
     process :save_file_size_in_model
 
     def save_file_size_in_model
@@ -21,7 +18,7 @@ module Fae
 
     # Add a white list of extensions which are allowed to be uploaded.
     # For images you might use something like this:
-    def extension_white_list
+    def extension_allowlist
       %w(jpg jpeg gif png pdf)
     end
 

@@ -9,9 +9,10 @@ html
     == javascript_include_tag 'fae/application'
     == csrf_meta_tags
 
-  body class=body_class
+  body class=body_class style=('--highlight-color:' + '#' + @option.colorway if @option.colorway.present?)
     == render 'mobilenav'
     == render 'header'
+    .js-form-manager-container
     section.main-content#js-main-content
       == render 'sidenav'
 

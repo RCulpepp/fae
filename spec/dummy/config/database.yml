@@ -9,28 +9,19 @@ base: &base
 
 development:
   <<: *base
+  database: fae_dummy
+  host: <%= ENV['DEV_MYSQL_HOST'] || 'localhost' %>
 
 test:
   <<: *base
   database: <%= ENV['MYSQL_DATABASE'] || 'fae_dummy_test' %>
   username: <%= ENV['MYSQL_USER'] || 'root' %>
   password: <%= ENV['MYSQL_PASSWORD'] %>
+  host: <%= ENV['DEV_MYSQL_HOST'] || 'localhost' %>
 
-
-remote_development:
-  <<: *base
-  database: fae_dev
-  username: fae
-  password: sh45&rEDnap
-
-stage:
-  <<: *base
-  database: fae_stage
-  username: fae
-  password: sh45&rEDnap
-
+# Fae Dummy app on Render
 production:
-  <<: *base
-  database: fae
-  username: fae
-  password: sh45&rEDnap
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  url: <%= ENV['DATABASE_URL'] %>

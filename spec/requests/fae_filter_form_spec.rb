@@ -2,10 +2,20 @@ require 'rails_helper'
 
 describe 'fae_filter_form' do
 
+  before(:each) do
+    def admin_releases_path
+      Rails.application.routes.url_helpers.admin_releases_path
+    end
+
+    def admin_locations_path
+      Rails.application.routes.url_helpers.admin_locations_path
+    end
+  end
+
   describe 'title option' do
 
     it 'should default to "Search Class Names"' do
-      FactoryGirl.create(:release)
+      FactoryBot.create(:release)
       admin_login
       get admin_releases_path
 
@@ -13,7 +23,7 @@ describe 'fae_filter_form' do
     end
 
     it 'should be overridable' do
-      FactoryGirl.create(:location)
+      FactoryBot.create(:location)
       admin_login
       get admin_locations_path
 
@@ -23,7 +33,7 @@ describe 'fae_filter_form' do
 
   describe 'search option' do
     it 'should default to showing the search field' do
-      FactoryGirl.create(:release)
+      FactoryBot.create(:release)
       admin_login
       get admin_releases_path
 
@@ -31,7 +41,7 @@ describe 'fae_filter_form' do
     end
 
     it 'should not show search if search: false' do
-      FactoryGirl.create(:location)
+      FactoryBot.create(:location)
       admin_login
       get admin_locations_path
 
@@ -48,7 +58,7 @@ describe 'fae_filter_form' do
       expect(response.body).to_not include('js-filter-form')
 
       # Ensure results display when there are records
-      FactoryGirl.create(:release)
+      FactoryBot.create(:release)
       get admin_releases_path
       expect(response.body).to include('js-filter-form')
     end

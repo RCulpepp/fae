@@ -6,6 +6,10 @@ feature 'Sign In' do
     create_super_user
   end
 
+  def no_models_exist?
+    ActiveRecord::Base.descendants.map.reject { |m| m.name['Fae::'] || !m.instance_methods.include?(:fae_display_field) || Fae.dashboard_exclusions.include?(m.name) }
+  end
+
   scenario 'when user leaves out email' do
     visit fae.new_user_session_path
 
@@ -38,8 +42,8 @@ feature 'Sign In' do
   end
 
   before :each do
-    role = FactoryGirl.create(:fae_role, name: 'admin')
-    @user = FactoryGirl.create(:fae_user,
+    role = FactoryBot.create(:fae_role, name: 'admin')
+    @user = FactoryBot.create(:fae_user,
       email: 'test@test.com',
       password: 'passord1',
       password_confirmation: 'passord1',
@@ -68,5 +72,16 @@ feature 'Sign In' do
     click_button 'Submit'
 
     expect(page).to have_content('Welcome')
+  end
+
+  scenario "when user signs in for the first time" do
+    visit fae.new_user_session_path
+
+    fill_in 'user_email', with: 'test@test.com'
+    fill_in 'user_password', with: 'passord1'
+    click_button 'Submit'
+    if no_models_exist?
+      expect(page).to have_content("Welcome to Fae")
+    end
   end
 end

@@ -7,8 +7,8 @@ end
 def admin_login
   create_super_user
 
-  role = FactoryGirl.create(:fae_role, name: 'admin')
-  user = FactoryGirl.create(:fae_user, first_name: 'Admin', role: role)
+  role = FactoryBot.create(:fae_role, name: 'admin')
+  user = FactoryBot.create(:fae_user, first_name: 'Admin', role: role)
 
   login(user)
 end
@@ -16,8 +16,8 @@ end
 def user_login
   create_super_user
 
-  role = FactoryGirl.create(:fae_role, name: 'user')
-  user = FactoryGirl.create(:fae_user, first_name: 'User', role: role)
+  role = FactoryBot.create(:fae_role, name: 'user')
+  user = FactoryBot.create(:fae_user, first_name: 'User', role: role)
 
   login(user)
 end
@@ -26,8 +26,8 @@ end
 # which is required for the admin to function properly
 # without a super admin most pages will redirect to a fae.first_user_path
 def create_super_user
-  role = FactoryGirl.create(:fae_role, name: 'super admin')
-  FactoryGirl.create(:fae_user, first_name: 'SuperAdmin', role: role)
+  role = FactoryBot.create(:fae_role, name: 'super admin')
+  FactoryBot.create(:fae_user, first_name: 'SuperAdmin', role: role)
 end
 
 module SignInControllerHelper
@@ -38,13 +38,11 @@ end
 
 module SignInRequestHelper
   def login(user)
-    if Rails::VERSION::MAJOR > 4
-      post fae.user_session_path, params: { user: { 'email' => user.email, 'password' => user.password } }
+    post fae.user_session_path, params: { user: { 'email' => user.email, 'password' => user.password } }
 
-      follow_redirect!
-    else
-      post_via_redirect fae.user_session_path, 'user[email]' => user.email, 'user[password]' => user.password
-    end
+    # this should work, but it's effecting the route variables, possible related to
+    # https://github.com/plataformatec/devise/issues/4127
+    # follow_redirect!
   end
 end
 

@@ -1,5 +1,7 @@
 source "https://rubygems.org"
 
+ruby '3.1.1'
+
 # Declare your gem's dependencies in fae.gemspec.
 # Bundler will treat runtime dependencies like base dependencies, and
 # development dependencies will be added by default to the :development group.
@@ -14,27 +16,26 @@ gemspec
 # gem 'debugger'
 
 # Set the version of Rails for the dummy app
-gem 'rails', '~> 5.0.0'
+gem 'rails', '~> 7.0.2'
 
 # Lock in Rake to a version compatible with rspec-rails 3.0
-gem 'rake', '< 12.0.0'
+gem 'rake'
 
-gem 'jquery-rails'
-gem 'jquery-ui-rails', '~> 4.2.1'
 gem 'sass', require: 'sass'
-gem 'rmagick', require: false
 
 group :test, :development do
-  gem 'rspec-rails', '~> 3.0.2'
+  gem 'rspec-rails'
   gem 'pry'
 end
 
 group :test do
-  gem 'factory_girl_rails', '~> 4.4.1'
-  gem 'capybara-webkit', '~> 1.11.1'
+  gem 'webrick'
+  gem 'factory_bot_rails', '~> 4.8.2'
+  # https://github.com/thoughtbot/capybara-webkit/issues/1065
+  gem 'capybara-webkit', github: 'thoughtbot/capybara-webkit', branch: 'master'
   gem 'capybara-screenshot'
-  gem 'guard-rspec', '~> 4.3.1'
-  gem 'selenium-webdriver', '~> 2.42.0'
+  gem 'guard-rspec'
+  gem 'selenium-webdriver'
   gem 'shoulda-matchers', require: false
   gem 'yarjuf'
   gem 'database_cleaner'
@@ -46,3 +47,9 @@ gem 'capistrano-rails', git: 'https://github.com/wearefine/rails'
 gem 'capistrano-rvm'
 
 gem 'mysql2'
+gem 'pg'
+gem "puma", "~> 5.0"
+
+gem "fog-aws"
+gem 'ddtrace', require: 'ddtrace/auto_instrument'
+

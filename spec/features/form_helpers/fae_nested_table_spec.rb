@@ -10,7 +10,7 @@ feature 'fae_nested_table' do
   end
 
   scenario 'should allow adding new items', js: true do
-    release = FactoryGirl.create(:release)
+    release = FactoryBot.create(:release)
 
     admin_login
     visit edit_admin_release_path(release)
@@ -22,12 +22,17 @@ feature 'fae_nested_table' do
       fill_in 'Name', with: 'My Brand New Smell!'
       click_button('Create Aroma')
     end
-    expect(page.find('#aromas table')).to have_content('My Brand New Smell!')
+
+    eventually {
+      # form should add item and only one item
+      expect(page.find('#aromas table')).to have_content('My Brand New Smell!')
+      expect(Aroma.all.count).to eq(1)
+    }
   end
 
   scenario 'should allow editing existing item', js: true do
-    release = FactoryGirl.create(:release)
-    aroma   = FactoryGirl.create(:aroma, name: 'Roses', release: release)
+    release = FactoryBot.create(:release)
+    aroma   = FactoryBot.create(:aroma, name: 'Roses', release: release)
 
     admin_login
     visit edit_admin_release_path(release)
@@ -41,13 +46,16 @@ feature 'fae_nested_table' do
       fill_in 'Name', with: 'Lavender'
       click_button('Update Aroma')
     end
-    expect(page.find('#aromas table')).to have_content('Lavender')
-    expect(page.find('#aromas table')).to_not have_content('Roses')
+
+    eventually {
+      expect(page.find('#aromas table')).to have_content('Lavender')
+      expect(page.find('#aromas table')).to_not have_content('Roses')
+    }
   end
 
   scenario 'should allow deletion of item', js: true do
-    release = FactoryGirl.create(:release)
-    aroma   = FactoryGirl.create(:aroma, name: 'Roses', release: release)
+    release = FactoryBot.create(:release)
+    aroma   = FactoryBot.create(:aroma, name: 'Roses', release: release)
 
     admin_login
     visit edit_admin_release_path(release)
@@ -56,35 +64,33 @@ feature 'fae_nested_table' do
 
     page.find("tr#aromas_#{aroma.id} .js-delete-link").click
 
-    expect(page.find('#aromas table')).to_not have_content('Roses')
+    eventually {
+      expect(page.find('#aromas table')).to_not have_content('Roses')
+    }
   end
 
   scenario 'should allow reordering of items', js: true do
-    wine = FactoryGirl.create(:wine)
-    FactoryGirl.create(:winemaker, name: 'Last', wine: wine, region_type: 1)
-    FactoryGirl.create(:winemaker, name: 'Middle', wine: wine, region_type: 1)
-    FactoryGirl.create(:winemaker, name: 'First', wine: wine, region_type: 1)
+    wine = FactoryBot.create(:wine)
+    winemaker_1 = FactoryBot.create(:winemaker, name: 'Last', wine: wine, region_type: 1)
+    winemaker_2 = FactoryBot.create(:winemaker, name: 'Middle', wine: wine, region_type: 1)
+    winemaker_3 = FactoryBot.create(:winemaker, name: 'First', wine: wine, region_type: 1)
 
     admin_login
     visit edit_admin_wine_path(wine)
 
-    expect(page.body).to match(/First.*Middle.*Last/)
+    expect(Winemaker.order(:position)).to eq([winemaker_3, winemaker_2, winemaker_1])
 
-    # within(:css, '#oregon_winemakers_section') do
-    #   handle = all('tbody tr').last.find('.sortable-handle')
-    #   handle.drag_to(find('thead'))
-    # end
-    #
-    # TODO - drag_to is triggering the SetupController, which is in turn raising a no roles found
-    # Not sure why, think it has something to do with Capybara's synchronize method
-    # Proper code is above; hack below
-    evaluate_script "$('#oregon_winemakers_section tbody').prepend( $('#oregon_winemakers_section tbody tr:last-child') ); $('#oregon_winemakers_section .sortable-handle:first-child').trigger('mousedown');"
+    handle = find("#winemakers_#{winemaker_1.id} .sortable-handle i")
+    target = find("#winemakers_#{winemaker_3.id} .sortable-handle i")
+    handle.drag_to(target)
 
-    expect(page.body).to match(/Last.*First.*Middle/)
+    eventually {
+      expect(Winemaker.order(:position)).to eq([winemaker_3, winemaker_1, winemaker_2])
+    }
   end
 
   scenario 'should allow adding new items w params', js: true do
-    wine = FactoryGirl.create(:wine)
+    wine = FactoryBot.create(:wine)
 
     admin_login
     visit edit_admin_wine_path(wine)
@@ -97,8 +103,51 @@ feature 'fae_nested_table' do
       click_button('Create Winemaker')
     end
 
-    expect(page.find('#oregon_winemakers_section table')).to have_content('Portland Joe')
-    expect(page.find('#california_winemakers_section table')).to have_no_content('Portland Joe')
+    eventually {
+      expect(page.find('#oregon_winemakers_section table')).to have_content('Portland Joe')
+      expect(page.find('#california_winemakers_section table')).to have_no_content('Portland Joe')
+    }
+  end
+
+  scenario 'should prevent parent form saving when user hits cancel on nested form unsaved changes alert', js: true do
+    release = FactoryBot.create(:release)
+
+    admin_login
+    visit edit_admin_release_path(release)
+
+    click_link 'Add Release Note'
+    expect(page).to have_css('form#new_release_note')
+
+
+    within(:css, 'form#new_release_note') do
+      fill_in 'Title', with: "I'm a release note"
+    end
+
+    click_button 'Save'
+    page.driver.browser.reject_js_confirms
+    
+    expect(page).to have_css('form#new_release_note')
+  end
+
+  scenario 'allows parent form saving when user hits continue on nested form unsaved changes alert', js: true do
+    release = FactoryBot.create(:release)
+
+    admin_login
+    visit edit_admin_release_path(release)
+
+    click_link 'Add Release Note'
+    expect(page).to have_css('form#new_release_note')
+
+    within(:css, 'form#new_release_note') do
+      fill_in 'Title', with: "I'm a release note"
+    end
+
+    click_button 'Save'
+    page.driver.browser.accept_js_confirms
+
+    eventually {
+      expect(current_path).to eq(admin_releases_path)
+    }
   end
 
 end

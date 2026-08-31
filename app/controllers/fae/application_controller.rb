@@ -1,14 +1,15 @@
 module Fae
   class ApplicationController < ActionController::Base
     protect_from_forgery with: :exception
-
+    
     include Fae::ApplicationControllerConcern
-
+    
     helper Fae::ViewHelper
     helper Fae::FormHelper
     helper Fae::NestedFormHelper
     helper Fae::FaeHelper
-
+    helper Fae::QrCodeHelper
+    
     before_action :check_disabled_environment
     before_action :first_user_redirect
     before_action :authenticate_user!
@@ -17,11 +18,33 @@ module Fae
     before_action :detect_cancellation
     before_action :set_change_user
     before_action :set_locale
+    before_action :setup_form_manager
+    before_action :setup_mfa_redirect
 
     private
 
+    def setup_form_manager
+      if Fae.use_form_manager
+        @form_manager = FormManager.for_model(params, @item)
+      end
+    end
+
+    # defines the locale used to translate the Fae interface
     def set_locale
-      I18n.locale = :en
+      if I18n.available_locales.include?(language_from_browser)
+        language_from_browser
+      else
+        :en
+      end
+    end
+
+    # parse HTTP_ACCEPT_LANGUAGE and return an array of language codes
+    # ex: ["en-US", "en", "zh-CN", "zh", "cs"]
+    # then grab the first and convert to symbol
+    def language_from_browser
+      if request.env['HTTP_ACCEPT_LANGUAGE'].present?
+        request.env['HTTP_ACCEPT_LANGUAGE'].scan(/[a-z-]{2,5}/i).first.try(:to_sym)
+      end
     end
 
     def check_disabled_environment
@@ -39,7 +62,7 @@ module Fae
     end
 
     def show_404
-      render template: 'fae/pages/error404.html.slim', layout: 'fae/error.html.slim', status: :not_found
+      render 'fae/pages/error404', layout: 'fae/error', status: :not_found
     end
 
     def set_option
@@ -84,6 +107,12 @@ module Fae
       redirect_to fae.first_user_path if Fae::User.live_super_admins.blank?
     end
 
+    def setup_mfa_redirect
+      if @option.site_mfa_enabled && current_user.present? && current_user.user_mfa_enabled && !current_user.otp_required_for_login && request.path != new_two_factor_settings_path && request.path != two_factor_settings_path
+          redirect_to new_two_factor_settings_path
+      end
+    end
+
     def set_change_user
       Fae::Change.current_user = current_user.id if current_user.present?
     end
@@ -104,7 +133,7 @@ module Fae
 
     def load_and_filter_models
       # load of all models since Rails caches activerecord queries.
-      Rails.application.eager_load!
+      Zeitwerk::Loader.eager_load_all
       ActiveRecord::Base.descendants.map.reject { |m| m.name['Fae::'] || !m.instance_methods.include?(:fae_display_field) || Fae.dashboard_exclusions.include?(m.name) || !authorize_model(m) }
     end
 

@@ -4,7 +4,7 @@ describe Fae::StaticPage do
 
   describe 'concerns' do
     it 'should allow instance methods through Fae::StaticPageConcern' do
-      static_page = FactoryGirl.build_stubbed(:fae_static_page)
+      static_page = FactoryBot.build_stubbed(:fae_static_page)
 
       expect(static_page.instance_says_what).to eq('Fae::StaticPage instance: what?')
     end
@@ -18,11 +18,11 @@ describe Fae::StaticPage do
 
     it 'should attach only once' do
       hp = HomePage.instance
-      expect(hp.class.reflect_on_all_associations(:has_one).map(&:name)).to eq([:header, :hero, :email, :phone, :cell_phone, :work_phone, :introduction, :introduction_2, :body, :hero_image, :welcome_pdf])
+      expect(hp.class.reflect_on_all_associations(:has_one).map(&:name)).to eq([:header, :hero, :email, :phone, :cell_phone, :work_phone, :introduction, :introduction_2, :body, :hero_image, :welcome_pdf, :test_cta])
 
       # trigger instance twice
       hp = HomePage.instance
-      expect(hp.class.reflect_on_all_associations(:has_one).map(&:name)).to eq([:header, :hero, :email, :phone, :cell_phone, :work_phone, :introduction, :introduction_2, :body, :hero_image, :welcome_pdf])
+      expect(hp.class.reflect_on_all_associations(:has_one).map(&:name)).to eq([:header, :hero, :email, :phone, :cell_phone, :work_phone, :introduction, :introduction_2, :body, :hero_image, :welcome_pdf, :test_cta])
     end
 
     it 'should attach language associations when present' do
@@ -79,8 +79,8 @@ describe Fae::StaticPage do
     end
 
     it 'should return Fae::Image and Fae::File association as a hash' do
-      home_page_image = FactoryGirl.create(:fae_image, caption: 'look, a mountain', imageable_type: 'Fae::StaticPage', imageable_id: @home_page.id, attached_as: 'hero_image')
-      home_page_file = FactoryGirl.create(:fae_file, fileable_type: 'Fae::StaticPage', fileable_id: @home_page.id, attached_as: 'welcome_pdf')
+      home_page_image = FactoryBot.create(:fae_image, caption: 'look, a mountain', imageable_type: 'Fae::StaticPage', imageable_id: @home_page.id, attached_as: 'hero_image')
+      home_page_file = FactoryBot.create(:fae_file, fileable_type: 'Fae::StaticPage', fileable_id: @home_page.id, attached_as: 'welcome_pdf')
 
       expect(@home_page.as_json[:hero_image]).to have_key('asset')
       expect(@home_page.as_json[:hero_image]['asset']['url']).to include('test.jpg')
@@ -93,10 +93,34 @@ describe Fae::StaticPage do
 
   describe 'when decorated' do
     it 'should respond to decorator method' do
-      static_page = FactoryGirl.build_stubbed(:fae_static_page)
+      static_page = FactoryBot.build_stubbed(:fae_static_page)
 
       expect(static_page.respond_to?('instance_is_decorated')).to eq true
       expect(static_page.instance_is_decorated).to eq('Fae::StaticPage instance is decorated')
+    end
+  end
+
+  describe '.supports_validation' do
+
+    context 'when the type is supported' do
+      it 'should return false without validates hash' do
+        expect(Fae::StaticPage.supports_validation(Fae::TextField, Fae::TextField)).to eq(false)
+        expect(Fae::StaticPage.supports_validation(Fae::TextField, { type: Fae::TextField })).to eq(false)
+      end
+
+      it 'should return true with validates hash' do
+        value = { type: Fae::TextField, validates: { presence: true } }
+        expect(Fae::StaticPage.supports_validation(Fae::TextField, value)).to eq(true)
+      end
+    end
+
+    context 'when the type is not supported' do
+      it 'should always return false' do
+        without_validates = { type: Fae::File }
+        with_validates = { type: Fae::Image, validates: { presence: true } }
+        expect(Fae::StaticPage.supports_validation(Fae::File, without_validates)).to eq(false)
+        expect(Fae::StaticPage.supports_validation(Fae::Image, with_validates)).to eq(false)
+      end
     end
   end
 

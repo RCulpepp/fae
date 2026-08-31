@@ -16,7 +16,7 @@ module Fae
       end
       respond_to do |format|
         format.html
-        format.csv { send_data @items.to_csv, filename: @items.name.parameterize + "." + Time.now.to_s(:filename) + '.csv'  }
+        format.csv { send_data @items.to_csv, filename: @items.name.parameterize + "." + Time.now.to_fs(:filename) + '.csv'  }
       end
     end
 
@@ -35,7 +35,11 @@ module Fae
       @item = @klass.new(item_params)
 
       if @item.save
-        redirect_to @index_path, notice: t('fae.save_notice')
+        if @item.try(:fae_redirect_to_form_on_create)
+          redirect_to send("edit_admin_#{@klass_singular}_path", @item.id), notice: t('fae.save_notice')
+        else
+          redirect_to @index_path, notice: t('fae.save_notice')
+        end
       else
         build_assets
         flash[:alert] = t('fae.save_error')
@@ -84,7 +88,7 @@ module Fae
       @klass = klass_base.classify.constantize             # used as class reference in this controller
       @klass_singular = klass_base.singularize             # used in index views
       @klass_humanized = @klass_name.singularize.humanize  # used in index views
-      @index_path = '/' + params[:controller]              # used in form_header and form_buttons partials
+      @index_path = '/' + params[:controller]              # used in form_header partial
       @new_path = @index_path + '/new'                     # used in index_header partial
     end
 

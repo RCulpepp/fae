@@ -22,12 +22,16 @@ module Fae
       new_klass
     end
 
+    def deployments_active_class
+      '-parent-current -open' if params[:controller].split('/').last == 'deploy'
+    end
+
     def col_name_or_image(item, attribute)
       value = item.send(attribute)
       return if value.blank?
       # if item is an image
       if value.class.name == 'Fae::Image'
-        image_tag(value.asset.thumb.url) if value.asset.thumb.url.present?
+        image_tag(nested_table_thumb_url(value), class: 'addedit-form-thumb') if nested_table_thumb_url(value).present?
       # if item's attribute is an association
       elsif item.class.reflections.include?(attribute)
         value.try(:fae_display_field)
@@ -60,7 +64,7 @@ module Fae
 
     def change_item_link(change)
       text = "#{change.changeable_type.gsub('Fae::','')}: "
-      test_source_method = Rails::VERSION::MAJOR > 4 ? :data_source_exists? : :table_exists?
+      test_source_method = :data_source_exists?
 
       if change.changeable_type.exclude?('Fae') && change.changeable_type.exclude?('Page') && !ActiveRecord::Base.connection.send(test_source_method, change.changeable_type.tableize)
         return "#{change.changeable_type}: model destroyed"
@@ -72,12 +76,25 @@ module Fae
         begin
           return link_to text, fae.edit_content_block_path(change.changeable.slug) if change.changeable_type == 'Fae::StaticPage'
           parent = change.changeable.respond_to?(:fae_parent) ? change.changeable.fae_parent : nil
-          edit_path = edit_polymorphic_path([main_app, fae_scope, parent, change.changeable])
+          edit_path = edit_polymorphic_path(
+            [main_app, fae_scope.to_sym, parent, change.changeable]
+          )
           return link_to text, edit_path
         rescue
           return text
         end
       end
+    end
+
+    def netlify_enabled?
+      Fae.netlify.present? &&
+      Fae.netlify[:api_user].present? &&
+      Fae.netlify[:api_token].present? &&
+      Fae.netlify[:api_base].present?
+    end
+
+    def open_ai_enabled?
+      Fae.open_ai_api_key.present?
     end
 
     private
@@ -110,5 +127,24 @@ module Fae
       "#{item.class.name.underscore.gsub('/', '_').pluralize}_#{item.id}"
     end
 
+    def multi_column_nav_ul_class(item_count)
+      num = item_count.length
+      if num > 30
+        'multicol-nav four'
+      elsif num > 20
+        'multicol-nav three'
+      elsif num > 10
+        'multicol-nav'
+      end
+    end
+
+    def nested_table_thumb_url(image)
+      return unless image.asset.file
+      if image.asset.file.extension.downcase == 'svg'
+        image.asset.url
+      else
+        image.asset.thumb.url
+      end
+    end
   end
 end

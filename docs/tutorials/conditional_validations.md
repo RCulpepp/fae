@@ -40,7 +40,7 @@ end
 In your form view nest the optional fields, and add some classes for js and sass. In this case we are looking at the project form.
 
 ```ruby
-= simple_form_for(['admin', @item]) do |f|
+= simple_form_for([:admin, @item]) do |f|
   ...
 
   .content
@@ -81,8 +81,7 @@ and in FAE.js require the file above at the top
 In `fae.scss` add in some styles for the `hidden` and `is_required_and_hidden` classes.
 
 ```sass
-// Do Not Delete this page! FAE depends on it in order to set its highlight color.
-$c-custom-highlight: #e6253c;
+// Add custom SCSS to this file
 
 .hidden {
   display: none;
@@ -91,7 +90,7 @@ $c-custom-highlight: #e6253c;
 label.is_required_and_hidden {
   &:before {
     content: '* ';
-    color: $c-custom-highlight;
+    color: var(--highlight-color);
   }
 }
 ```

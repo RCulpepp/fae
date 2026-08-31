@@ -149,11 +149,11 @@
 
 .ui-datepicker-calendar {
   .ui-state-hover {
-    color: $c-custom-highlight;
+    color: var(--highlight-color);
   }
 
   .ui-state-active {
-    background: $c-custom-highlight;
+    background: var(--highlight-color);
     color: $c-white;
     position: relative;
   }
@@ -207,6 +207,22 @@
     padding: 12px;
     font-size: 19px;
     color: $c-darker-grey;
+
+  }
+
+  &.table-filter-group {
+    width: 130px;
+
+    input[type=text] {
+      border-radius: 0;
+    }
+
+    label:before {
+      right: -5px;
+      bottom: -6px;
+
+      font-size: 15px;
+    }
   }
 }
 
@@ -307,12 +323,12 @@
 
         &.checked,
         &.toMonth.valid.checked {
-          background: $c-custom-highlight;
+          background: var(--highlight-color);
           color: $c-white;
         }
 
         &.real-today.checked {
-          background: $c-custom-highlight;
+          background: var(--highlight-color);
         }
       }
 

@@ -1,8 +1,8 @@
 # encoding: utf-8
 module Fae
   class ImageUploader < CarrierWave::Uploader::Base
-    include CarrierWave::MimeTypes
-    include CarrierWave::RMagick
+
+    include CarrierWave::MiniMagick
 
     # saves file size to DB
     process :save_file_size_in_model
@@ -10,8 +10,8 @@ module Fae
       model.file_size = file.size
     end
 
-    def extension_white_list
-      %w(jpg jpeg gif png ico)
+    def extension_allowlist
+      %w(jpg jpeg gif png ico svg)
     end
 
     # Override the directory where uploaded files will be stored.

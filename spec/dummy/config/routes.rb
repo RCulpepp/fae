@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   root 'pages#home'
 
   namespace :admin do
+    resources :sub_spirits
+    resources :spirits
+    resources :sub_aromas
+    resources :poly_things
     resources :beers
     resources :article_categories
     resources :articles
@@ -12,9 +16,6 @@ Rails.application.routes.draw do
     resources :cats
     resources :locations
     resources :releases do
-      post 'filter', on: :collection
-    end
-    resources :legacy_releases do
       post 'filter', on: :collection
     end
     resources :wines

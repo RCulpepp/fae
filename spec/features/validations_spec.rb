@@ -1,3 +1,5 @@
+# TODO: update Judge version
+
 require 'spec_helper'
 
 feature 'validations' do
@@ -35,7 +37,7 @@ feature 'validations' do
   end
 
   scenario 'selects should validate on change', js: true do
-    wine = FactoryGirl.create(:wine)
+    wine = FactoryBot.create(:wine)
 
     admin_login
     visit new_admin_release_path
@@ -50,7 +52,7 @@ feature 'validations' do
 
     within('.release_wine') do
       page.find('.chosen-single').click
-      page.find('li', text: 'Select One').click
+      page.find('li', text: 'None').click
     end
 
     expect(page).to have_selector('div.release_wine.field_with_errors')
@@ -71,14 +73,12 @@ feature 'validations' do
 
   end
 
-  # TODO: fix failing test
-  # scenario 'should have error banner when errors are on the page', js: true do
-  #   super_admin_login
-  #   visit new_admin_release_path
-  #   fill_in 'release_name', with: 'Test'
-  #   click_button('Save')
+  scenario 'should have banner with links to fields when form has errors', js: true do
+    admin_login
+    visit new_admin_release_path
+    click_button('Save')
 
-  #   expect(page).to have_selector('div.flash-message.alert')
-  # end
+    expect(page).to have_selector('.error-jump-link')
+  end
 
 end

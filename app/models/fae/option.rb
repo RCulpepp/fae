@@ -6,6 +6,7 @@ module Fae
 
     validates_inclusion_of :singleton_guard, :in => [0]
     validates_presence_of :title, :time_zone, :live_url
+    validates :colorway, format: { with: /(^[0-9a-fA-F]{6}$)|(^$)/, message: "Invalid hex code or doesn't meet length requirement of exactly 6 characters" }
 
     has_one :logo, -> { where(attached_as: 'logo' ) },
       as: :imageable,
@@ -27,12 +28,24 @@ module Fae
       instance = first
 
       if instance.blank?
-        instance = Option.new({title: 'My FINE Admin', time_zone: 'Pacific Time (US & Canada)', live_url: 'http://www.wearefine.com'})
+        instance = Option.new({title: 'My Fae Admin', time_zone: 'Pacific Time (US & Canada)', live_url: 'http://www.wearefine.com'})
         instance.singleton_guard = 0
         instance.save!
       end
 
       instance
+    end
+
+    class << self
+
+      def set_mfa_enabling_user(email)
+        if email.present?
+          update(mfa_enabling_user: email)
+        else
+          update(mfa_enabling_user: "")
+        end
+      end
+      
     end
   end
 end

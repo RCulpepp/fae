@@ -9,6 +9,7 @@ module Fae
     serialize :updated_attributes
 
     class << self
+
       # writing current_user to thread for thread safety
       def current_user=(user)
         Thread.current[:current_user] = user
@@ -28,12 +29,25 @@ module Fae
         conditions[:user_id] = params['user'] if params['user'].present?
         conditions[:changeable_type] = params['model'] if params['model'].present?
         conditions[:change_type] = params['type'] if params['type'].present?
+        params['date'] ||= ''
 
-        date_scope = case params['date']
-          when 'Last Hour' then   ['fae_changes.updated_at >= ?', 60.minutes.ago]
-          when 'Last Day' then    ['fae_changes.updated_at >= ?', 1.day.ago]
-          when 'Last Week' then   ['fae_changes.updated_at >= ?', 1.week.ago]
-          when 'Last Month' then  ['fae_changes.updated_at >= ?', 1.month.ago]
+        date_scope = []
+        if params['start_date'].present? || params['end_date'].present?
+          start_date = params['start_date'].present? ? CGI.unescape(params['start_date']).to_date : nil
+          end_date   = params['end_date'].present? ? CGI.unescape(params['end_date']).to_date : nil
+          date_scope = ['fae_changes.updated_at >= ?', start_date] if start_date.present?
+          date_scope = ['fae_changes.updated_at <= ?', end_date] if end_date.present?
+          date_scope = ['fae_changes.updated_at >= ? AND fae_changes.updated_at <= ?', start_date, end_date] if start_date.present? && end_date.present?
+        else
+          # normalize url param strings because "Last Hour" != "Last%20Hour"
+          date_scope = case params['date'].downcase.gsub('%20', '-')
+          when 'last-hour' then   ['fae_changes.updated_at >= ?', 60.minutes.ago]
+          when 'last-day' then    ['fae_changes.updated_at >= ?', 1.day.ago]
+          when 'last-week' then   ['fae_changes.updated_at >= ?', 1.week.ago]
+          when 'last-month' then  ['fae_changes.updated_at >= ?', 1.month.ago]
+          else
+            []
+          end
         end
 
         # use good 'ol MySQL to search if search param is present

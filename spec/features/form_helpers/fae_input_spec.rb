@@ -22,34 +22,24 @@ feature 'fae_input' do
   end
 
   scenario 'should display common helper texts' do
-    expect(page).to have_content('Company Name | Keyword-driven description of the page section. Approx 65 characters.')
-    expect(page).to have_content('Displayed in search engine results. Under 150 characters.')
+    expect(page).to have_content('A descriptive page title of ~50-65 characters. Displayed in search engine results.')
+    expect(page).to have_content('A helpful page summary of 200 characters or less. Displayed in search engine results.')
   end
 
   scenario 'should display hint when clicked', js: true do
     expect(page).to_not have_content('Normal Hint')
-    page.find('.release_name .hinter-clicker').trigger('click')
+    page.find('.release_vintage .hinter-clicker').trigger('click')
     expect(page).to have_content('Normal Hint')
   end
 
-  scenario 'should display dark hint when clicked', js: true do
-    expect(page).to_not have_content('Dark Hint')
-    page.find('.release_vintage .hinter-clicker').trigger('click')
-    expect(page).to have_content('Dark Hint')
-  end
-
   scenario 'should hide label on hidden fields', js: true do
-    within('.release_created_at') do
-      expect(page).to_not have_content('Created at')
-    end
+    expect(page).to_not have_content('Created At')
   end
 
   scenario 'should have maximum characters on fields with maximum length validations', js: true do
-    within('.release_name') do
-      expect(page).to have_content('Maximum Characters: 15')
-      fill_in "release_name", with: "My Release"
-      expect(page).to have_content('Characters Left: 5')
-    end
+    expect(page).to have_content('Maximum Characters: 15')
+    fill_in "release_name", with: "My Release"
+    expect(page).to have_content('Characters Left: 5')
   end
 
   scenario 'should display markdown helper when markdown_supported: true', js: true do
@@ -89,5 +79,14 @@ feature 'fae_input' do
       expect(find_field('Slug').value).to eq('The letter J wanted to be like all the other letters of the alphabet, but the other letters were very cruel. They said "The letter J, you look like a disheveled I. The letter I is cool." J countered, "There is no I in team." It was not a very good comebac')
     end
   end
+
+  # TODO: fix spec
+  # scenario 'should display ajax modal popup when link is clicked', js: true do
+  #   expect(page).to_not have_selector('#fae-modal')
+
+  #   page.find('.js-fae-modal').click
+
+  #   expect(page).to have_selector('#fae-modal')
+  # end
 
 end

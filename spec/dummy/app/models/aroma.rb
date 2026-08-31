@@ -3,12 +3,15 @@ class Aroma < ActiveRecord::Base
 
   belongs_to :release
   has_many :cats
+  has_many :sub_aromas, dependent: :destroy
 
   acts_as_list add_new_at: :top, scope: :release
   default_scope { order(:position) }
 
   has_one :image, as: :imageable, class_name: '::Fae::Image', dependent: :destroy
   accepts_nested_attributes_for :image, allow_destroy: true
+
+  validates :name, presence: true
 
   def fae_display_field
     name
